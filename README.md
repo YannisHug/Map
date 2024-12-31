@@ -59,20 +59,54 @@ Ce travail s'inscrit dans la continuité du projet principal, tout en respectant
 
 ---
 
-### **2ème Jalon : Optimisation et complexification**
+### **2ème Jalon : Optimisation de la méthode de placement des tiles**
 
 #### Objectif :
 Simplifier et optimiser le positionnement des tiles grâce à la méthode du **bitmasking**. Cette approche permettra de :
 - Réduire la complexité du code.
 - Rendre le code plus lisible et facile à maintenir.
 
----
+✅ **Statut : Terminé le 31/12/2024.**
 
-#### **Fonctionnalités prévues :**
-Le deuxième jalon introduira également des interactions entre différents acteurs de l'écosystème (humains, zombies, etc.) pour modéliser un monde vivant et dynamique :
-- **Bitmasking pour les tiles** :
-    - Utilisation d'un masque binaire pour gérer efficacement les transitions entre types de terrain (ex. sable/herbe, eau/sable).
-- **Interactions dynamiques** :
-    - Ajout de comportements aléatoires et de transformations dans l'écosystème (ex. zombies infectant des humains).
 
 ---
+
+### **3ème Jalon : Création dynamique de la map (Chunks) en fonction de la position du joueur**
+
+#### Objectif :
+Mettre en place une génération dynamique de la carte en divisant celle-ci en **chunks** (zones fixes), inspirée des mécanismes des jeux vidéo.
+
+#### Fonctionnalités prévues :
+1. **Division en Chunks** :
+   - La carte est découpée en zones de taille fixe pour permettre une génération ciblée et une gestion optimale des ressources.
+2. **Génération Dynamique** :
+   - Seuls les chunks visibles ou proches de la position actuelle du joueur sont générés ou chargés en mémoire.
+3. **Gestion des Transitions** :
+   - Les bordures des chunks sont harmonisées pour garantir une continuité visuelle et éviter les ruptures dans l'affichage.
+4. **Optimisation des Performances** :
+   - Déchargement des chunks éloignés du joueur pour limiter l'utilisation de la mémoire.
+   - Génération en arrière-plan via threading pour un jeu fluide.
+5. **Compatibilité avec l'Extension Future** :
+   - Préparation pour l’ajout de biomes ou autres éléments complexes dans les prochains jalons.
+
+---
+
+### **4ème Jalon : Complexification et création de biomes**
+
+#### Objectif :
+Introduire une nouvelle dimension au jeu avec des **biomes** variés et interactifs.
+
+#### Fonctionnalités prévues :
+1. **Diversité des Biomes** :
+   - Types de terrains spécifiques (forêt, désert, montagne, plaine, etc.).
+   - Conditions uniques pour chaque biome (ex. densité des arbres, types d’entités, climat).
+2. **Transitions Naturelles entre Biomes** :
+   - Les zones de transition entre biomes sont générées en douceur, en utilisant des algorithmes basés sur le bruit de Perlin ou d’autres méthodes similaires.
+3. **Interactions Dynamiques** :
+   - Les entités et objets réagissent différemment selon le biome dans lequel elles se trouvent (par exemple, certaines créatures ne survivent que dans des biomes spécifiques).
+4. **Génération Basée sur le Bitmasking** :
+   - Utilisation de techniques d'optimisation pour simplifier le placement des tiles tout en garantissant une cohérence visuelle.
+
+--- 
+
+
