@@ -8,118 +8,83 @@ import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.scene.input.MouseEvent;
 
+import java.awt.*;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class Main extends javafx.application.Application {
-    private MouseHandler mouseHandler = new MouseHandler();
     // Définition de la taille des cases
     private static final int TILE_SIZE = 20;
 
     // Le jeu
-    private MapCreation map;
     private MapGeneration mapGen;
-
-    private void handleMouseInteraction(MouseEvent event, Player player, MapCreation map) {
-        MouseHandler.handleMouseInteraction(event, player, map, TILE_SIZE);
-    }
 
     public void start(Stage primaryStage) {
         Player player = new Player();
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Voulez-vous générer une carte aléatoire (1) ou la créer vous-même (2) ? (Répondez 1 ou 2)");
-        String reponse = scanner.nextLine().toLowerCase();
 
-        if (reponse.equals("2")) {
-            map = new MapCreation();
-            map.Initialisation(TILE_SIZE);
+        mapGen = new MapGeneration();
+        mapGen.updateChunksAroundPlayer(player);
+        mapGen.updateBorders();
 
-            // Taille de la scène en fonction de la vision du joueur du jeu
-            int sceneWidth = (2 * player.getVisionRange()) * TILE_SIZE;
-            int sceneHeight = (2 * player.getVisionRange()+1) * TILE_SIZE; //Pour les boutons
+        // Sauvegarder les chunks actifs
+        mapGen.saveChunks();
 
-            Scene scene = new Scene(map.getRoot(), sceneWidth, sceneHeight);
-            map.displayMap(TILE_SIZE, player);
-            map.getRoot().requestFocus(); //Pour empecher les touches du clavier d'influer sur les boutons
+        // Taille de la scène en fonction de la vision du joueur
+        int sceneWidth = (2 * player.getVisionRange()) * TILE_SIZE;
+        int sceneHeight = (2 * player.getVisionRange()) * TILE_SIZE;
 
-            // Titre de la fenêtre
-            primaryStage.setTitle("Map Generator");
+        // Création de la scène et affichage
+        Scene scene = new Scene(mapGen.getRoot(), sceneWidth, sceneHeight);
+        mapGen.displayMap(TILE_SIZE, player);
+        mapGen.getRoot().requestFocus();
 
-            primaryStage.setScene(scene);
-            primaryStage.show();
+        // Titre de la fenêtre
+        primaryStage.setTitle("Map Generator");
 
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
-            // Événements souris
-            scene.setOnMousePressed(event -> MouseHandler.handleMouseInteraction(event, player, map, TILE_SIZE));
-            scene.setOnMouseDragged(event -> MouseHandler.handleMouseInteraction(event, player, map, TILE_SIZE));
+        // Evénements clavier
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.UP) {
+                player.setY(Math.min(Math.max(player.getY() - player.getVitesse(), player.getVisionRange()), mapGen.getRows() - player.getVisionRange()));
+            } else if (event.getCode() == KeyCode.DOWN) {
+                player.setY(Math.min(Math.max(player.getY() + player.getVitesse(), player.getVisionRange()), mapGen.getRows() - player.getVisionRange()));
+            } else if (event.getCode() == KeyCode.LEFT) {
+                player.setX(Math.min(Math.max(player.getX() - player.getVitesse(), player.getVisionRange()), mapGen.getCols() - player.getVisionRange()));
+            } else if (event.getCode() == KeyCode.RIGHT) {
+                player.setX(Math.min(Math.max(player.getX() + player.getVitesse(), player.getVisionRange()), mapGen.getCols() - player.getVisionRange()));
+            }
+        });
 
-            //Evenement clavier
-            scene.setOnKeyPressed(event -> {
-                if (event.getCode() == KeyCode.UP){
-                    player.setY(Math.min(Math.max(player.getY() - player.getVitesse(), player.getVisionRange()), map.getRows()-player.getVisionRange()));
-                }else if(event.getCode() == KeyCode.DOWN){
-                    player.setY(Math.min(Math.max(player.getY() + player.getVitesse(), player.getVisionRange()), map.getRows()-player.getVisionRange()));
-                }else if (event.getCode() == KeyCode.LEFT){
-                    player.setX(Math.min(Math.max(player.getX() - player.getVitesse(), player.getVisionRange()), map.getCols()-player.getVisionRange()));
-                }else if (event.getCode() == KeyCode.RIGHT){
-                    player.setX(Math.min(Math.max(player.getX() + player.getVitesse(), player.getVisionRange()), map.getCols()-player.getVisionRange()));
-                }
-            });
+        // Initialisation des chunks précédents (On m'a dit d'utiliser AtomicReference pour pas avoir d'erreur)
+        AtomicReference<Set<Point>> previousChunks = new AtomicReference<>(new HashSet<Point>(mapGen.getCurrentChunks()));
 
-            //Boucle principale
-            // Création du Timeline pour mise à jour périodique
-            Timeline timeline = new Timeline(
-                    new KeyFrame(Duration.millis(50), e -> {
-                        map.displayMap(TILE_SIZE, player);
-                    })
-            );
-            timeline.setCycleCount(Timeline.INDEFINITE); // Répéter indéfiniment
-            timeline.play(); // Lancer la mise à jour périodique
-        } else if (reponse.equals("1")) {
-            mapGen = new MapGeneration();
-            mapGen.CreateRandomMap(TILE_SIZE);
-            mapGen.updateBorders(TILE_SIZE);
-            mapGen.Save();
-            // Taille de la scène en fonction de la vision du joueur du jeu
-            int sceneWidth = (2 * player.getVisionRange()) * TILE_SIZE;
-            int sceneHeight = (2 * player.getVisionRange()) * TILE_SIZE;
+        // Boucle principale
+        // Création du Timeline pour mise à jour périodique
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(50), e -> {
+                    mapGen.updateChunksAroundPlayer(player);  // Mettre à jour les chunks actifs à chaque frame
 
-            Scene scene = new Scene(mapGen.getRoot(), sceneWidth, sceneHeight);
-            mapGen.displayMap(TILE_SIZE, player);
-            mapGen.getRoot().requestFocus(); //Pour empecher les touches du clavier d'influer sur les boutons
+                    // Récupérer les chunks actuels (sans modification)
+                    Set<Point> currentChunks = mapGen.getCurrentChunks();
 
-            // Titre de la fenêtre
-            primaryStage.setTitle("Map Generator");
+                    // Vérifier si la zone des chunks a changé
+                    if (!currentChunks.equals(previousChunks.get())) {
+                        // Si les chunks ont changé, mettre à jour les borduress
+                        mapGen.updateBorders();
+                        previousChunks.set(new HashSet<>(currentChunks));  // Mise à jour des chunks précédents
+                    }
 
-            primaryStage.setScene(scene);
-            primaryStage.show();
-
-            //Evenement clavier
-            scene.setOnKeyPressed(event -> {
-                if (event.getCode() == KeyCode.UP){
-                    player.setY(Math.min(Math.max(player.getY() - player.getVitesse(), player.getVisionRange()), mapGen.getRows()-player.getVisionRange()));
-                }else if(event.getCode() == KeyCode.DOWN){
-                    player.setY(Math.min(Math.max(player.getY() + player.getVitesse(), player.getVisionRange()), mapGen.getRows()-player.getVisionRange()));
-                }else if (event.getCode() == KeyCode.LEFT){
-                    player.setX(Math.min(Math.max(player.getX() - player.getVitesse(), player.getVisionRange()), mapGen.getCols()-player.getVisionRange()));
-                }else if (event.getCode() == KeyCode.RIGHT){
-                    player.setX(Math.min(Math.max(player.getX() + player.getVitesse(), player.getVisionRange()), mapGen.getCols()-player.getVisionRange()));
-                }
-            });
-
-            //Boucle principale
-            // Création du Timeline pour mise à jour périodique
-            Timeline timeline = new Timeline(
-                    new KeyFrame(Duration.millis(50), e -> {
-                        mapGen.displayMap(TILE_SIZE, player);
-                    })
-            );
-            timeline.setCycleCount(Timeline.INDEFINITE); // Répéter indéfiniment
-            timeline.play(); // Lancer la mise à jour périodique
-
-        }
-
-
+                    mapGen.displayMap(TILE_SIZE, player);  // Affichage des nouveaux chunks
+                })
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE); // Répéter indéfiniment
+        timeline.play(); // Lancer la mise à jour périodique
     }
 
 
