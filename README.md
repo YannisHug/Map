@@ -89,6 +89,7 @@ Mettre en place une génération dynamique de la carte en divisant celle-ci en *
 5. **Compatibilité avec l'Extension Future** :
    - Préparation pour l’ajout de biomes ou autres éléments complexes dans les prochains jalons.
 
+✅ **Statut : Terminé le 01/01/2025.**
 ---
 
 ### **4ème Jalon : Complexification et création de biomes**
