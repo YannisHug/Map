@@ -95,7 +95,8 @@ Mettre en place une génération dynamique de la carte en divisant celle-ci en *
 ### **4ème Jalon : Complexification et création de biomes**
 
 #### Objectif :
-Introduire une nouvelle dimension au jeu avec des **biomes** variés et interactifs.
+Par manque de temps, et étant donné que mes camarades ont beaucoup travaillé sur les interactions entre les espèces, les déplacements spécifiques, etc., sans prendre en considération la notion de chunk, qui modifie entièrement la logique des déplacements, j'ai repris ce qui avait été fait au jalon 2 et je me suis limité à une carte de taille fixe, déjà largement suffisante pour notre projet. Nous aurions pu intégrer le concept de chunk pour obtenir une carte de taille infinie, mais cela n'était pas nécessaire dans ce cas.
+L'objectif dans ce jalon était d'introduire une nouvelle dimension au jeu avec des **biomes** variés et interactifs.
 
 #### Fonctionnalités prévues :
 1. **Diversité des Biomes** :
